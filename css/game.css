@@ -1,0 +1,270 @@
+/* ---------- Base screens ---------- */
+.screen {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+.screen[hidden] { display: none !important; }
+
+button { font-family: inherit; border: none; cursor: pointer; }
+
+/* ---------- Buttons (design.md §8.2) ---------- */
+.btn-primary {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  background: var(--success);
+  border: 1px solid var(--success-dark);
+  box-shadow: var(--sh-inset-btn);
+  color: var(--ten-white);
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: var(--r-sm);
+  padding: 14px 20px;
+  transition: background var(--dur-base) var(--ease-out), transform var(--dur-fast);
+}
+.btn-primary:hover  { background: #17994B; }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(232,0,29,0.35); }
+
+.btn-outline {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.75);
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: var(--r-sm);
+  padding: 13px 20px;
+  transition: all var(--dur-base) var(--ease-out);
+}
+.btn-outline:hover  { background: rgba(255,255,255,0.08); border-color: #fff; }
+.btn-outline:active { transform: scale(0.98); }
+
+/* ---------- Dark hero (start + win) — design.md §8.13 / §9.1 ---------- */
+.screen-start,
+.screen-win {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background:
+    radial-gradient(ellipse at 80% 8%, rgba(232,0,29,0.22), transparent 55%),
+    radial-gradient(ellipse at 10% 92%, rgba(232,0,29,0.12), transparent 60%),
+    linear-gradient(180deg, #1A0005 0%, #0A0004 100%);
+  color: #fff;
+  text-align: center;
+}
+
+.geo-watermark {
+  position: absolute;
+  pointer-events: none;
+  stroke: var(--ten-red);
+  fill: none;
+  stroke-width: 1.5;
+  opacity: 0.20;
+}
+.geo-a { width: 220px; height: 220px; top: -40px; right: -50px; }
+.geo-b { width: 140px; height: 140px; bottom: 10%; left: -30px; }
+.geo-c { width: 120px; height: 120px; bottom: -20px; right: 8%; opacity: 0.14; }
+@keyframes geo-drift { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-12px) rotate(4deg); } }
+.geo-drift { animation: geo-drift 9s ease-in-out infinite; }
+
+.start-content, .win-content {
+  position: relative;
+  z-index: 1;
+  max-width: 380px;
+  width: 100%;
+}
+
+.eyebrow {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: rgba(232,0,29,0.16);
+  border: 1px solid rgba(232,0,29,0.45);
+  color: #FFD9DE;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.h-display {
+  font: 700 30px/1.25 var(--font-bangla);
+  letter-spacing: var(--tracking-tight);
+  margin: 16px 0 10px;
+}
+
+.start-sub, .win-sub {
+  font: 400 16px/1.5 var(--font-bangla);
+  color: rgba(255,255,255,0.75);
+  margin: 0 0 24px;
+}
+
+.start-medal-peek {
+  width: min(58vw, 220px);
+  margin: 0 auto 28px;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+}
+.start-medal-peek img { width: 100%; display: block; }
+
+.win-image-wrap {
+  width: min(62vw, 240px);
+  margin: 0 auto 20px;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 6px rgba(28,171,85,0.15);
+}
+.win-image-wrap img { width: 100%; display: block; }
+
+.win-title { color: #fff; margin: 0 0 6px; }
+.win-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+
+.confetti-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.share-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  background: rgba(17,24,39,0.94);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  z-index: 50;
+}
+
+/* ---------- Game screen ---------- */
+.screen-game {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--bg);
+  position: relative;
+}
+
+.game-header {
+  flex: 0 0 auto;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand-mark { display: flex; align-items: center; gap: 8px; }
+.brand-mark-badge {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: var(--ten-red); color: #fff;
+  font-weight: 800; font-size: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+.brand-mark-text { font-weight: 700; font-size: 14px; color: var(--fg-1); }
+
+.progress-pill {
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  padding: 6px 14px;
+  font-weight: 700;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-1);
+}
+.progress-sep { margin: 0 3px; color: var(--fg-3); }
+
+.board-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+}
+
+.board {
+  position: relative;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.ghost-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.22;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.tray {
+  flex: 0 0 auto;
+  height: 152px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 0 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ---------- Puzzle pieces ---------- */
+.piece {
+  display: block;
+  flex: 0 0 auto;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: grab;
+  scroll-snap-align: center;
+  transition: filter var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+.piece.dragging {
+  cursor: grabbing;
+  z-index: 1000;
+  filter: drop-shadow(0 10px 22px rgba(17,24,39,0.32));
+  transform: scale(1.05);
+  transition: none;
+}
+.piece.locked {
+  cursor: default;
+  pointer-events: none;
+}
+
+.drag-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 900;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .geo-drift { animation: none; }
+}

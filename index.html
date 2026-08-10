@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>কৃতী শিক্ষার্থী ২০২৫ — মেডেল পাজল</title>
+<meta name="description" content="১০ মিনিট স্কুলের কৃতী শিক্ষার্থী ২০২৫ মেডেলের জিগস পাজল সমাধান করো।" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/colors_and_type.css" />
+<link rel="stylesheet" href="css/game.css" />
+</head>
+<body>
+<div id="app">
+
+  <!-- START SCREEN -->
+  <section id="screen-start" class="screen screen-start">
+    <svg class="geo-watermark geo-drift geo-a" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" /></svg>
+    <svg class="geo-watermark geo-drift geo-b" viewBox="0 0 100 100" aria-hidden="true"><rect x="10" y="10" width="60" height="60" transform="rotate(18 40 40)" /></svg>
+    <svg class="geo-watermark geo-c" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,6 94,90 6,90" /></svg>
+
+    <div class="start-content">
+      <span class="eyebrow bn">কৃতী শিক্ষার্থী ২০২৫</span>
+      <h1 class="h-display bn">তোমার অর্জনের<br />পাজল সাজাও</h1>
+      <p class="start-sub bn">১২ টুকরার পাজল জোড়া লাগিয়ে ফিরিয়ে আনো তোমার সেরা মুহূর্তটি</p>
+
+      <div class="start-medal-peek">
+        <img src="assets/puzzle-medal.jpg" alt="কৃতী শিক্ষার্থী ২০২৫ মেডেল" />
+      </div>
+
+      <button id="btn-start" class="btn-primary bn" type="button">শুরু করো</button>
+    </div>
+  </section>
+
+  <!-- GAME SCREEN -->
+  <section id="screen-game" class="screen screen-game" hidden>
+    <header class="game-header">
+      <div class="brand-mark">
+        <span class="brand-mark-badge">10</span>
+        <span class="brand-mark-text bn">মিনিট স্কুল</span>
+      </div>
+      <div class="progress-pill bn"><span id="progress-count">০</span><span class="progress-sep">/</span><span id="progress-total">১২</span></div>
+    </header>
+
+    <div class="board-wrap">
+      <div id="board" class="board">
+        <img id="ghost-image" class="ghost-image" src="assets/puzzle-medal.jpg" alt="" aria-hidden="true" draggable="false" />
+      </div>
+    </div>
+
+    <div id="tray" class="tray" aria-label="পাজলের টুকরা"></div>
+  </section>
+
+  <!-- WIN SCREEN -->
+  <section id="screen-win" class="screen screen-win" hidden>
+    <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
+    <div class="win-content">
+      <div class="win-image-wrap">
+        <img src="assets/puzzle-medal.jpg" alt="কৃতী শিক্ষার্থী ২০২৫ মেডেল" />
+      </div>
+      <h2 class="h1 bn win-title">অভিনন্দন!</h2>
+      <p class="win-sub bn">তুমি সফলভাবে পাজলটি সম্পূর্ণ করেছো</p>
+      <div class="win-actions">
+        <button id="btn-share" class="btn-primary bn" type="button">শেয়ার করো</button>
+        <button id="btn-replay" class="btn-outline bn" type="button">আবার খেলো</button>
+      </div>
+      <div id="share-toast" class="share-toast bn" hidden>লিংক কপি হয়েছে</div>
+    </div>
+  </section>
+
+</div>
+
+<script src="js/confetti.js"></script>
+<script src="js/puzzle-shapes.js"></script>
+<script src="js/puzzle-render.js"></script>
+<script src="js/puzzle-game.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
