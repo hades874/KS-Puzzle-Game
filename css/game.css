@@ -235,6 +235,14 @@ button { font-family: inherit; border: none; cursor: pointer; }
   -webkit-overflow-scrolling: touch;
 }
 
+.tray-error {
+  flex: 1 1 auto;
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--fg-2);
+}
+
 /* ---------- Puzzle pieces ---------- */
 .piece {
   display: block;
@@ -263,8 +271,4 @@ button { font-family: inherit; border: none; cursor: pointer; }
   inset: 0;
   pointer-events: none;
   z-index: 900;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .geo-drift { animation: none; }
 }

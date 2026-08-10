@@ -178,6 +178,13 @@
         });
         onProgress(0, pieces.length);
       };
+      image.onerror = function () {
+        var msg = document.createElement('p');
+        msg.className = 'tray-error bn';
+        msg.setAttribute('role', 'alert');
+        msg.textContent = 'ছবিটি লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে নিয়ে পেজটি আবার লোড করো।';
+        trayEl.appendChild(msg);
+      };
       image.src = ghostImg.src;
     }
 

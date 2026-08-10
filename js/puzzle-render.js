@@ -38,7 +38,7 @@
 
         ctx.save();
         ctx.clip(path);
-        ctx.drawImage(image, -bbox.x, -bbox.y, S.IMG_W, S.IMG_H);
+        ctx.drawImage(image, bbox.x, bbox.y, bbox.w, bbox.h, 0, 0, bbox.w, bbox.h);
         ctx.restore();
 
         ctx.save();
