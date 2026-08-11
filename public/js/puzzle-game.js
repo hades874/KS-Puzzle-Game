@@ -1,8 +1,14 @@
 (function (global) {
   var S = global.PuzzleShapes;
 
-  var TRAY_COLS = 4;
+  var TRAY_COLS_MOBILE = 3;
+  var TRAY_COLS_DESKTOP = 4;
+  var TRAY_DESKTOP_MIN_WIDTH = 640; // must match .tray's CSS breakpoint
   var TRAY_GAP = 10; // must match .tray's CSS `gap`
+
+  function trayCols() {
+    return global.innerWidth >= TRAY_DESKTOP_MIN_WIDTH ? TRAY_COLS_DESKTOP : TRAY_COLS_MOBILE;
+  }
 
   function initGame(opts) {
     var boardEl = opts.boardEl;
@@ -39,7 +45,7 @@
       var availH = wrap.clientHeight - parseFloat(cs.paddingTop)  - parseFloat(cs.paddingBottom);
       if (!(availW > 0) || !(availH > 0)) return;   // screen hidden / zero-size: leave as-is
 
-      var w = Math.min(availW, 480);                 // board/tray share this cap
+      var w = Math.min(availW, 380);                 // keep the existing 380px cap
       var h = w * (S.IMG_H / S.IMG_W);
       if (h > availH) { h = availH; w = h * (S.IMG_W / S.IMG_H); }
 
@@ -47,13 +53,14 @@
       boardEl.style.height = h + 'px';
     }
 
-    // Sized independently from the board: always fits exactly TRAY_COLS
+    // Sized independently from the board: always fits exactly trayCols()
     // pieces per row, regardless of board scale or piece count.
     function computeTrayScale(bboxW) {
       var cs = global.getComputedStyle(trayEl);
       var availW = trayEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
       if (!(availW > 0) || !bboxW) { trayScale = scale; return; }
-      var perPieceW = (availW - TRAY_GAP * (TRAY_COLS - 1)) / TRAY_COLS;
+      var cols = trayCols();
+      var perPieceW = (availW - TRAY_GAP * (cols - 1)) / cols;
       trayScale = perPieceW / bboxW;
     }
 

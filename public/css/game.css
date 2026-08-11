@@ -289,7 +289,7 @@ button { font-family: inherit; border: none; cursor: pointer; }
 .tray {
   flex: 0 0 auto;
   width: 100%;
-  max-width: 480px;
+  max-width: 380px;
   margin: 0 auto;
   height: 300px;
   display: flex;
@@ -304,6 +304,13 @@ button { font-family: inherit; border: none; cursor: pointer; }
   background: var(--bg-inverse);
   scroll-snap-type: y proximity;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Wider viewports (tablet/desktop "web view"): 4 columns instead of 3,
+   sized to match TRAY_COLS_DESKTOP in puzzle-game.js. Real phones stay
+   under this width, so the mobile layout is untouched. */
+@media (min-width: 640px) {
+  .tray { max-width: 560px; }
 }
 
 .tray-error {
