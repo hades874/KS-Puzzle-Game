@@ -1,0 +1,13 @@
+{
+  // Cloudflare Workers static-assets config (`npx wrangler deploy`).
+  // Only needed if you deploy via Workers; the Cloudflare Pages dashboard
+  // route ignores this file and reads public/_headers directly.
+  "name": "ks-puzzle",
+  "compatibility_date": "2025-09-01",
+
+  // No "main" entry: this is an assets-only Worker, so there is no server
+  // code to run — Cloudflare serves public/ straight from the edge.
+  "assets": {
+    "directory": "./public"
+  }
+}

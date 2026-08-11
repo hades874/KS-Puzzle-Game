@@ -1,0 +1,10 @@
+# Keep non-deployable material out of the Vercel build entirely.
+# vercel.json already limits what is *served* to public/, but these are
+# excluded from upload too so internal notes never reach Vercel's servers.
+.claude
+.pipeline
+md
+ref_image
+google-apps-script
+wrangler.jsonc
+README.md

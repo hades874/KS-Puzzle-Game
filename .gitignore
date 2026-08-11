@@ -1,0 +1,16 @@
+# Credentials — never commit these
+.env
+.env.*
+*.pem
+*.key
+service-account*.json
+credentials*.json
+
+# Platform local state
+.vercel
+.wrangler
+node_modules
+
+# OS / editor
+.DS_Store
+Thumbs.db
