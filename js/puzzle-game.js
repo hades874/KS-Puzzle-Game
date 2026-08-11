@@ -1,15 +1,20 @@
 (function (global) {
   var S = global.PuzzleShapes;
 
+  var TRAY_COLS = 3;
+  var TRAY_GAP = 10; // must match .tray's CSS `gap`
+
   function initGame(opts) {
     var boardEl = opts.boardEl;
     var trayEl = opts.trayEl;
-    var ghostImg = opts.ghostImg;
+    var getSource = opts.getSource;
     var onProgress = opts.onProgress || function () {};
     var onWin = opts.onWin || function () {};
+    var onComplete = opts.onComplete || function () {};
 
     var grid = null;
     var scale = 1;
+    var trayScale = 1;
     var lockedCount = 0;
     var pieces = [];
     var dragLayer = null;
@@ -29,22 +34,32 @@
 
     function layoutBoardSize() {
       var wrap = boardEl.parentElement;
-      var wrapRect = wrap.getBoundingClientRect();
-      var maxW = Math.min(wrapRect.width, 380);
-      var maxH = wrapRect.height;
-      var w = maxW;
+      var cs = global.getComputedStyle(wrap);
+      var availW = wrap.clientWidth  - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      var availH = wrap.clientHeight - parseFloat(cs.paddingTop)  - parseFloat(cs.paddingBottom);
+      if (!(availW > 0) || !(availH > 0)) return;   // screen hidden / zero-size: leave as-is
+
+      var w = Math.min(availW, 380);                 // keep the existing 380px cap
       var h = w * (S.IMG_H / S.IMG_W);
-      if (h > maxH) {
-        h = maxH;
-        w = h * (S.IMG_W / S.IMG_H);
-      }
+      if (h > availH) { h = availH; w = h * (S.IMG_W / S.IMG_H); }
+
       boardEl.style.width = w + 'px';
       boardEl.style.height = h + 'px';
     }
 
+    // Sized independently from the board: always fits exactly TRAY_COLS
+    // pieces per row, regardless of board scale or piece count.
+    function computeTrayScale(bboxW) {
+      var cs = global.getComputedStyle(trayEl);
+      var availW = trayEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      if (!(availW > 0) || !bboxW) { trayScale = scale; return; }
+      var perPieceW = (availW - TRAY_GAP * (TRAY_COLS - 1)) / TRAY_COLS;
+      trayScale = perPieceW / bboxW;
+    }
+
     function placeTrayStyle(p) {
-      p.canvas.style.width = (p.bbox.w * scale) + 'px';
-      p.canvas.style.height = (p.bbox.h * scale) + 'px';
+      p.canvas.style.width = (p.bbox.w * trayScale) + 'px';
+      p.canvas.style.height = (p.bbox.h * trayScale) + 'px';
     }
 
     function attachDrag(p) {
@@ -129,6 +144,7 @@
       lockedCount++;
       onProgress(lockedCount, pieces.length);
       if (lockedCount === pieces.length) {
+        onComplete();
         global.setTimeout(onWin, 420);
       }
     }
@@ -161,9 +177,17 @@
       computeScale();
       grid = S.buildGrid((Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0);
 
-      var image = new Image();
-      image.onload = function () {
-        var rawPieces = global.PuzzleRender.renderPieces(image, grid);
+      getSource(function (source) {
+        if (!source) {
+          var msg = document.createElement('p');
+          msg.className = 'tray-error bn';
+          msg.setAttribute('role', 'alert');
+          msg.textContent = 'ছবিটি লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে নিয়ে পেজটি আবার লোড করো।';
+          trayEl.appendChild(msg);
+          return;
+        }
+        var rawPieces = global.PuzzleRender.renderPieces(source, grid);
+        computeTrayScale(rawPieces[0].bbox.w);
         var order = shuffleArray(rawPieces.map(function (_, i) { return i; }));
         order.forEach(function (idx) {
           var p = rawPieces[idx];
@@ -177,15 +201,7 @@
           pieces.push(p);
         });
         onProgress(0, pieces.length);
-      };
-      image.onerror = function () {
-        var msg = document.createElement('p');
-        msg.className = 'tray-error bn';
-        msg.setAttribute('role', 'alert');
-        msg.textContent = 'ছবিটি লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে নিয়ে পেজটি আবার লোড করো।';
-        trayEl.appendChild(msg);
-      };
-      image.src = ghostImg.src;
+      });
     }
 
     function start() {
@@ -207,6 +223,7 @@
 
       layoutBoardSize();
       computeScale();
+      if (pieces.length) computeTrayScale(pieces[0].bbox.w);
       pieces.forEach(function (p) {
         if (p.dragging) return; // leave an in-progress drag alone; it uses fresh rects on drop
         if (p.locked) {

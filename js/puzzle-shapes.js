@@ -1,10 +1,10 @@
 (function (global) {
   var ROWS = 4;
-  var COLS = 3;
-  var IMG_W = 1080;
-  var IMG_H = 1600;
-  var CELL_W = IMG_W / COLS; // 360
-  var CELL_H = IMG_H / ROWS; // 400
+  var COLS = 5;
+  var IMG_W = 564;
+  var IMG_H = 443;
+  var CELL_W = IMG_W / COLS; // 112.8
+  var CELL_H = IMG_H / ROWS; // 110.75
 
   function mulberry32(seed) {
     var s = seed >>> 0;

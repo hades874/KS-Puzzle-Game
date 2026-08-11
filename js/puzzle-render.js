@@ -53,5 +53,24 @@
     return pieces;
   }
 
-  global.PuzzleRender = { renderPieces: renderPieces };
+  // image: HTMLImageElement (loaded). Returns a canvas exactly S.IMG_W x S.IMG_H,
+  // with the source drawn centred and contain-fit (no crop) and transparency intact —
+  // the source asset is already a straight, background-removed cutout.
+  function normalizeSource(image) {
+    var canvas = document.createElement('canvas');
+    canvas.width = S.IMG_W;
+    canvas.height = S.IMG_H;
+    var ctx = canvas.getContext('2d');
+
+    var nw = image.naturalWidth || image.width, nh = image.naturalHeight || image.height;
+    if (!nw || !nh) return canvas;
+
+    var s = Math.min(S.IMG_W / nw, S.IMG_H / nh);
+    var dw = nw * s, dh = nh * s;
+    ctx.drawImage(image, (S.IMG_W - dw) / 2, (S.IMG_H - dh) / 2, dw, dh);
+
+    return canvas;
+  }
+
+  global.PuzzleRender = { renderPieces: renderPieces, normalizeSource: normalizeSource };
 })(window);

@@ -1,34 +1,57 @@
-# Changes — 3 remaining review fixes (ks-puzzle)
+# Changes — straighten/centre the puzzle image + black, background-removed theme
 
-Implemented exactly per `.pipeline/spec.md`. No open questions; no scope added beyond the spec (no retry/timeout logic, no extra styling, no other files touched).
+Implements `.pipeline/spec.md` exactly. Spec had no OPEN QUESTIONS (its "Resolved decisions" section already answers what would otherwise have been open questions), so no clarification was needed before implementing.
 
 ## Files changed
 
-### 1. `js/puzzle-game.js`
-- In `build()`, added `image.onerror` between the existing `image.onload = ...` assignment and `image.src = ghostImg.src;` (now lines 181–187).
-- On error, creates a `<p className="tray-error bn" role="alert">` via `document.createElement` + `textContent` (no `innerHTML`), with the exact Bangla copy from the spec, and appends it to `trayEl`.
-- Does not call `onProgress`/`onWin`. No cleanup code added — `start()` (unchanged, still calls `trayEl.innerHTML = ''` before `build()`) already clears the message on replay.
-- UTF-8 literal Bangla text used (no escapes), file encoding/BOM unchanged.
+### `d:\ks-puzzle\js\puzzle-render.js`
+- Added module-level tuning constants (`SOURCE_TILT_DEG`, `SOURCE_FOCUS_X/Y`, `SOURCE_ZOOM`, `BG_LUM_MIN`, `BG_LUM_SOFT`, `BG_SAT_MAX`) directly under `var S = global.PuzzleShapes;`, verbatim from the spec.
+- Added `clamp(v, lo, hi)` helper.
+- Added `normalizeSource(image)`: creates an `S.IMG_W x S.IMG_H` canvas, fills it black, reads `naturalWidth/naturalHeight` (bails out returning the black canvas if either is falsy — no throw), cover-fits + zooms + rotates + translates to the focus point via `drawImage`, then runs the luminance/saturation background-suppression pass wrapped in `try/catch` (silently no-ops on a tainted canvas, e.g. `file://`). Algorithm order matches the spec's 9 numbered steps exactly (fill black → read natural size → compute scale → translate → rotate → scale → drawImage → try/catch pixel key).
+- `renderPieces` is untouched. Export changed to `global.PuzzleRender = { renderPieces: renderPieces, normalizeSource: normalizeSource };`.
 
-### 2. `js/puzzle-render.js`
-- Single-line change inside `renderPieces()`: replaced the 5-arg
-  `ctx.drawImage(image, -bbox.x, -bbox.y, S.IMG_W, S.IMG_H);`
-  with the 9-arg source-rect overload
-  `ctx.drawImage(image, bbox.x, bbox.y, bbox.w, bbox.h, 0, 0, bbox.w, bbox.h);`
-- Nothing else in the file touched (`buildPath2D`, `ctx.scale(dpr, dpr)`, `ctx.clip(path)`, stroke block, canvas sizing all untouched).
+### `d:\ks-puzzle\js\main.js`
+- Removed `var ghostImg = document.getElementById('ghost-image');`.
+- Added the eager, shared image-load block from the spec verbatim: `PUZZLE_IMAGE_SRC`, `startCanvas`/`winCanvas`/`ghostCanvas` lookups (`start-medal-canvas`, `win-medal-canvas`, `ghost-canvas`), the `sourceCanvas`/`sourceFailed`/`sourceCallbacks` cache, `getSource(cb)` accessor, `drawInto(canvas, source)` helper, and the self-invoking `loadSource()` that creates one `Image`, normalizes it once via `window.PuzzleRender.normalizeSource`, draws the result into all three canvases, and flushes any queued `getSource` callbacks (success and failure paths both drain the queue).
+- In `ensureGame()`'s options object: removed `ghostImg: ghostImg,`, added `getSource: getSource,`. Screen switching, share/replay handlers, and Bangla digit formatting are unchanged.
 
-### 3. `css/game.css`
-- Added a `.tray-error` rule immediately after the `.tray { ... }` block, before the `/* ---------- Puzzle pieces ---------- */` comment. Uses `flex: 1 1 auto`, centered text, `font-size: 14px`, `color: var(--fg-2)` (existing token, no hardcoded hex).
-- Deleted the dead `@media (prefers-reduced-motion: reduce) { .geo-drift { animation: none; } }` rule and its preceding blank line, which were the last lines of the file. File now ends with `.drag-layer`'s closing `}` followed by a single trailing newline (verified with `wc -l` / `tail -c`: 274 lines, no stray blank line or extra rule after it).
-- `@keyframes geo-drift` / `.geo-drift` (lines 76–77 originally) left untouched — still live.
+### `d:\ks-puzzle\index.html`
+- Added `<meta name="theme-color" content="#0B1117" />` right after the viewport meta.
+- Start peek `<img>` → `<canvas id="start-medal-canvas" class="start-medal-canvas" width="1080" height="1600" role="img" aria-label="...">`.
+- Game-screen ghost `<img id="ghost-image">` → `<canvas id="ghost-canvas" class="ghost-image" width="1080" height="1600" aria-hidden="true">`.
+- Win-screen `<img>` → `<canvas id="win-medal-canvas" class="win-medal-canvas" width="1080" height="1600" role="img" aria-label="...">`.
+- No other HTML changes.
 
-### Not touched (per spec)
-`index.html`, `js/main.js`, `js/puzzle-shapes.js`, `js/confetti.js`, `assets/colors_and_type.css` — no edits made to any of these.
+### `d:\ks-puzzle\js\puzzle-game.js`
+- `initGame()`: `var ghostImg = opts.ghostImg;` → `var getSource = opts.getSource;`.
+- `layoutBoardSize()` rewritten to measure `wrap.clientWidth/clientHeight` minus `getComputedStyle` padding (content box) instead of `getBoundingClientRect()` (border box, which double-counted the 12/16px `.board-wrap` padding and broke the 1080:1600 aspect ratio). Guards on `availW > 0 && availH > 0` before doing anything; width and height are always derived together from the same ratio so `IMG_W:IMG_H` is preserved exactly (never rounds one dimension independently of the other).
+- `build()` rewritten to call `getSource(function (source) { ... })` instead of creating its own `Image()`. The `source === null` branch reproduces the original Bangla `tray-error` message verbatim (same class, `role="alert"`, same text) and returns without calling `onProgress`. The success branch is otherwise identical to the old `image.onload` body, just fed the shared `source` canvas into `global.PuzzleRender.renderPieces(source, grid)` (unchanged signature — `drawImage` already accepts a canvas source).
 
-## Verification notes for the Tester
+### `d:\ks-puzzle\css\game.css`
+- Added `html, body { background: var(--bg-inverse); }` at the top of the file, before `.screen`.
+- `.screen-start, .screen-win`: three-layer red gradient background replaced with `background: var(--bg-inverse);`; all other declarations (position/overflow/display/align/justify/padding/color/text-align) untouched.
+- `.screen-game`: `background: var(--bg);` → `background: var(--bg-inverse);`.
+- `.game-header`: `border-bottom: 1px solid var(--border);` → `rgba(255,255,255,0.12)`.
+- `.brand-mark-text`: `color: var(--fg-1);` → `#fff`.
+- `.progress-pill`: background/border/color switched to the rgba(255,255,255,…) dark-theme values from the spec.
+- `.progress-sep`: `color: var(--fg-3);` → `rgba(255,255,255,0.5)`.
+- `.board`: added `flex: 0 0 auto;` (Change 4 — stops flexbox shrinking the explicit width while the explicit height stays fixed, which was the root cause of the aspect-ratio bug); `background`/`border` switched to `#060809` / `rgba(255,255,255,0.14)` (Change 5).
+- `.tray`: `border-top`/`background` switched to the dark-theme values.
+- `.tray-error`: `color: var(--fg-2);` → `rgba(255,255,255,0.78)`.
+- `.piece.dragging`: `filter: drop-shadow(0 10px 22px rgba(17,24,39,0.32));` → `drop-shadow(0 0 14px rgba(255,255,255,0.30));` (dark shadow was invisible on the new dark board).
+- `.share-toast`: `background: rgba(17,24,39,0.94);` → `#1A1A1A;` plus added `border: 1px solid rgba(255,255,255,0.22);`.
+- Replaced `.start-medal-peek img { width: 100%; display: block; }` and `.win-image-wrap img { width: 100%; display: block; }` with a single combined rule: `.start-medal-canvas, .win-medal-canvas { width: 100%; height: auto; display: block; }`.
+- `.ghost-image`, `.btn-primary`, `.btn-outline`, `.eyebrow`, `.start-sub/.win-sub`, `.geo-watermark`, `.start-medal-peek`'s mask-image, and `.confetti-canvas` left untouched, per spec.
+- `assets/colors_and_type.css`, `js/puzzle-shapes.js`, and `js/confetti.js` were not touched, per spec's explicit exclusion list.
 
-- Both modified JS files pass `node -c` syntax checks; no build step exists for this project (static HTML/CSS/JS, serve via `python -m http.server 8000` from `d:\ks-puzzle`).
-- **Bug 2 (drawImage) is the highest-risk change and needs a visual before/after check**, not just a code read: capture screenshots of `#tray` (unsolved, showing border pieces from row 0, row 3, col 0, col 2 — these are the ones whose bbox extends outside the 1080×1600 source image) and of the solved `#board`, before and after the change, and confirm they are pixel-identical (piece art aligned inside jigsaw outline, white stroke intact, no seams/offsets/transparent gaps). Per the spec, out-of-bounds source rects are expected to be legal/clipped correctly by the canvas spec — this should hold, but must be confirmed rather than assumed.
-- **Bug 1**: force `image.onerror` by pointing `#ghost-image`'s `src` at a missing path via the console before clicking `#btn-start` (see spec Verification step 5), then confirm the Bangla `role="alert"` message renders centered in the tray with the `.tray-error` styling (14px, `--fg-2` color, Bangla font from `.bn`). Confirm the progress pill is untouched and that starting a fresh game (replay) clears the message via `trayEl.innerHTML = ''` in `start()`.
-- **Bug 3**: with Chromium's `prefers-reduced-motion: reduce` emulation on, confirm start-screen watermarks (`.geo-drift`) are still static — this is now handled solely by the universal rule in `assets/colors_and_type.css` (lines 135–137), which was not modified.
-- Confirm `css/game.css` has no trailing extra blank line/rule after `.drag-layer` and that no other CSS rules were altered.
+## Verification performed
+- `node -c` syntax-checked `js/puzzle-render.js`, `js/main.js`, `js/puzzle-game.js` — all pass.
+- Served the repo via `python -m http.server 8000` and confirmed `index.html`, all three modified JS files, `css/game.css`, and `assets/puzzle-medal.jpg` all return HTTP 200 (then stopped the server).
+- Playwright is not installed in this environment, so the spec's Verification section (screenshot diffing, drag-drop simulation, the `b.height/b.width ≈ 1.481` console check, forcing the error path) was **not** run by me. The tester should run through that section manually/with Playwright, in particular:
+  - Confirm the medal photo reads level/centred and the background is visibly darkened, and tune `SOURCE_TILT_DEG`/`SOURCE_ZOOM`/`SOURCE_FOCUS_*`/`BG_LUM_MIN`/`BG_SAT_MAX` visually if it doesn't look right — the spec explicitly says these constants are a starting point ("iterate visually; there is no single correct value").
+  - Confirm `#board`'s `getBoundingClientRect()` ratio is ≈1.481 and pieces snap without a visible jump.
+  - Confirm no console errors from `getImageData`/`putImageData` when served via `http.server`, and confirm graceful degradation (Bangla tray-error message, blank start/win canvases, no throw) when the image fails to load.
+
+## Deviations / risks
+- No deviations from the spec's exact algorithm order, function signatures, CSS selectors, or values — implemented as specified throughout.
+- One thing to flag for the tester, not a deviation: the tuning constants (tilt angle, zoom, focus point, luminance/saturation thresholds) were copied verbatim from the spec's suggested defaults, which the spec itself describes as approximate/derived from manual corner measurements. Actual visual correctness of the straightening and background-suppression on `assets/puzzle-medal.jpg` has not been eyeballed by me (no visual/screenshot tooling used in this pass) — this is exactly the iterative tuning step the spec's Verification section calls out as expected follow-up.

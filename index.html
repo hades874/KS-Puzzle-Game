@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0B1117" />
 <title>কৃতী শিক্ষার্থী ২০২৫ — মেডেল পাজল</title>
 <meta name="description" content="১০ মিনিট স্কুলের কৃতী শিক্ষার্থী ২০২৫ মেডেলের জিগস পাজল সমাধান করো।" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -23,11 +24,29 @@
     <div class="start-content">
       <span class="eyebrow bn">কৃতী শিক্ষার্থী ২০২৫</span>
       <h1 class="h-display bn">তোমার অর্জনের<br />পাজল সাজাও</h1>
-      <p class="start-sub bn">১২ টুকরার পাজল জোড়া লাগিয়ে ফিরিয়ে আনো তোমার সেরা মুহূর্তটি</p>
+      <p class="start-sub bn">২০ টুকরার পাজল জোড়া লাগিয়ে ফিরিয়ে আনো তোমার সেরা মুহূর্তটি</p>
 
       <div class="start-medal-peek">
-        <img src="assets/puzzle-medal.jpg" alt="কৃতী শিক্ষার্থী ২০২৫ মেডেল" />
+        <canvas id="start-medal-canvas" class="start-medal-canvas" width="564" height="443" role="img" aria-label="কৃতী শিক্ষার্থী ২০২৫ মেডেল"></canvas>
       </div>
+
+      <div class="name-field">
+        <label class="name-label bn" for="player-name">তোমার নাম</label>
+        <input id="player-name" class="name-input bn" type="text" maxlength="24" autocomplete="off" placeholder="নাম লেখো" />
+      </div>
+
+      <div class="name-field">
+        <label class="name-label bn" for="player-school">তোমার স্কুল</label>
+        <input id="player-school" class="name-input bn" type="text" maxlength="60" autocomplete="off" placeholder="স্কুলের নাম লেখো" />
+      </div>
+
+      <div class="name-field">
+        <label class="name-label bn" for="player-phone">তোমার ফোন নম্বর</label>
+        <input id="player-phone" class="name-input bn" type="tel" inputmode="numeric" pattern="01[3-9][0-9]{8}" maxlength="11" autocomplete="off" placeholder="01XXXXXXXXX" />
+      </div>
+
+      <p class="attempt-warning bn">তুমি সর্বোচ্চ ৫ বার খেলতে পারবে। প্রতিটি প্রচেষ্টা তোমার ফোন নম্বর দিয়ে গণনা করা হয়।</p>
+      <p id="form-error" class="form-error bn" role="alert" hidden></p>
 
       <button id="btn-start" class="btn-primary bn" type="button">শুরু করো</button>
     </div>
@@ -37,15 +56,17 @@
   <section id="screen-game" class="screen screen-game" hidden>
     <header class="game-header">
       <div class="brand-mark">
-        <span class="brand-mark-badge">10</span>
-        <span class="brand-mark-text bn">মিনিট স্কুল</span>
+        <img class="brand-mark-logo" src="assets/logo.png" alt="১০ মিনিট স্কুল" />
       </div>
-      <div class="progress-pill bn"><span id="progress-count">০</span><span class="progress-sep">/</span><span id="progress-total">১২</span></div>
+      <div class="header-stats">
+        <div id="timer-pill" class="timer-pill bn"><span id="timer-value">০০:০০</span></div>
+        <div class="progress-pill bn"><span id="progress-count">০</span><span class="progress-sep">/</span><span id="progress-total">২০</span></div>
+      </div>
     </header>
 
     <div class="board-wrap">
       <div id="board" class="board">
-        <img id="ghost-image" class="ghost-image" src="assets/puzzle-medal.jpg" alt="" aria-hidden="true" draggable="false" />
+        <canvas id="ghost-canvas" class="ghost-image" width="564" height="443" aria-hidden="true"></canvas>
       </div>
     </div>
 
@@ -57,10 +78,15 @@
     <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
     <div class="win-content">
       <div class="win-image-wrap">
-        <img src="assets/puzzle-medal.jpg" alt="কৃতী শিক্ষার্থী ২০২৫ মেডেল" />
+        <canvas id="win-medal-canvas" class="win-medal-canvas" width="564" height="443" role="img" aria-label="কৃতী শিক্ষার্থী ২০২৫ মেডেল"></canvas>
       </div>
       <h2 class="h1 bn win-title">অভিনন্দন!</h2>
       <p class="win-sub bn">তুমি সফলভাবে পাজলটি সম্পূর্ণ করেছো</p>
+      <div class="win-time-card">
+        <span class="win-time-label bn">তোমার সময়</span>
+        <span id="win-time-value" class="win-time-value bn">০০:০০</span>
+      </div>
+      <p id="save-note" class="form-error bn" role="alert" hidden>স্কোর সংরক্ষণ করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করো।</p>
       <div class="win-actions">
         <button id="btn-share" class="btn-primary bn" type="button">শেয়ার করো</button>
         <button id="btn-replay" class="btn-outline bn" type="button">আবার খেলো</button>
@@ -69,11 +95,26 @@
     </div>
   </section>
 
+  <!-- ATTEMPTS-EXHAUSTED SCREEN -->
+  <section id="screen-leaderboard" class="screen screen-leaderboard" hidden>
+    <header class="leaderboard-header">
+      <button id="btn-leaderboard-back" class="icon-back-btn bn" type="button" aria-label="ফিরে যাও">‹</button>
+      <h2 class="leaderboard-title bn">তোমার খেলার সুযোগ শেষ</h2>
+    </header>
+    <div class="leaderboard-body">
+      <p class="leaderboard-sub bn">তুমি ৫ বার খেলে ফেলেছো। নিচে তোমার সময়গুলো দেখো।</p>
+      <ol id="leaderboard-list" class="leaderboard-list"></ol>
+      <p id="leaderboard-empty" class="leaderboard-empty bn" hidden>তোমার কোনো সময় খুঁজে পাওয়া যায়নি।</p>
+    </div>
+  </section>
+
 </div>
 
 <script src="js/confetti.js"></script>
 <script src="js/puzzle-shapes.js"></script>
 <script src="js/puzzle-render.js"></script>
+<script src="js/puzzle-timer.js"></script>
+<script src="js/puzzle-sheet.js"></script>
 <script src="js/puzzle-game.js"></script>
 <script src="js/main.js"></script>
 </body>
