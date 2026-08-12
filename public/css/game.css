@@ -100,7 +100,7 @@ button { font-family: inherit; border: none; cursor: pointer; }
   margin: 16px 0 10px;
 }
 
-.start-sub, .win-sub {
+.win-sub {
   font: 400 16px/1.5 var(--font-bangla);
   color: rgba(255,255,255,0.75);
   margin: 0 0 24px;
@@ -108,7 +108,7 @@ button { font-family: inherit; border: none; cursor: pointer; }
 
 .start-medal-peek {
   width: min(58vw, 220px);
-  margin: 0 auto 28px;
+  margin: 24px auto 28px;
   border-radius: var(--r-lg);
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.18);
