@@ -271,18 +271,29 @@ button { font-family: inherit; border: none; cursor: pointer; }
   position: relative;
   flex: 0 0 auto;
   background: #060809;
-  border: 1px solid rgba(255,255,255,0.14);
+  /* An inset ring rather than a border, on purpose. Under the global
+     `box-sizing: border-box`, a border shrinks the content box while
+     getBoundingClientRect() keeps reporting the border box — which put the
+     ghost canvas and the placed pieces on two scales 2px apart, leaving a
+     sliver of ghost seam beside every piece. box-shadow does not affect
+     layout, so the board's box stays exactly the size layoutBoardSize sets. */
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14);
   border-radius: var(--r-lg);
   overflow: hidden;
 }
 
-/* Dimming is baked into the canvas by PuzzleRender.drawGhostGrid so the seam
-   lines stay readable against the faded picture. */
+/* Absolutely positioned so it resolves against the same padding box the placed
+   pieces do, and `fill` so it maps onto that box with no crop — `cover` would
+   trim a fraction whenever the box is a hair off-ratio. Dimming is baked into
+   the canvas by PuzzleRender.drawGhostGrid so the seam lines stay readable
+   against the faded picture. */
 .ghost-image {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
   user-select: none;
   -webkit-user-drag: none;
 }

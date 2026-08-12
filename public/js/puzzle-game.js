@@ -34,9 +34,28 @@
       return dragLayer;
     }
 
-    function computeScale() {
+    // The board's padding box: the containing block placed pieces are positioned
+    // against, and the box the ghost canvas fills. Every image->screen mapping
+    // has to go through this. getBoundingClientRect() alone reports the border
+    // box, so any border on .board would put the pieces on a different scale
+    // from the ghost and leave a seam sliver beside each placed piece.
+    function boardInnerRect() {
       var rect = boardEl.getBoundingClientRect();
-      scale = rect.width / S.IMG_W;
+      var cs = global.getComputedStyle(boardEl);
+      var bl = parseFloat(cs.borderLeftWidth) || 0;
+      var bt = parseFloat(cs.borderTopWidth) || 0;
+      var br = parseFloat(cs.borderRightWidth) || 0;
+      var bb = parseFloat(cs.borderBottomWidth) || 0;
+      return {
+        left: rect.left + bl,
+        top: rect.top + bt,
+        width: rect.width - bl - br,
+        height: rect.height - bt - bb,
+      };
+    }
+
+    function computeScale() {
+      scale = boardInnerRect().width / S.IMG_W;
     }
 
     function layoutBoardSize() {
@@ -124,11 +143,14 @@
       var pieceCenterX = pieceRect.left + pieceRect.width / 2;
       var pieceCenterY = pieceRect.top + pieceRect.height / 2;
 
-      var boardRect = boardEl.getBoundingClientRect();
-      var cellWpx = boardRect.width / S.COLS;
-      var cellHpx = boardRect.height / S.ROWS;
-      var targetCenterX = boardRect.left + (p.col + 0.5) * cellWpx;
-      var targetCenterY = boardRect.top + (p.row + 0.5) * cellHpx;
+      // Derive drop targets from the same inner box and `scale` the rendering
+      // uses, so a piece snaps to exactly where it will be drawn.
+      computeScale();
+      var inner = boardInnerRect();
+      var cellWpx = S.CELL_W * scale;
+      var cellHpx = S.CELL_H * scale;
+      var targetCenterX = inner.left + (p.col + 0.5) * cellWpx;
+      var targetCenterY = inner.top + (p.row + 0.5) * cellHpx;
 
       var dist = Math.hypot(pieceCenterX - targetCenterX, pieceCenterY - targetCenterY);
       var tolerance = Math.min(cellWpx, cellHpx) * 0.38;
