@@ -276,12 +276,13 @@ button { font-family: inherit; border: none; cursor: pointer; }
   overflow: hidden;
 }
 
+/* Dimming is baked into the canvas by PuzzleRender.drawGhostGrid so the seam
+   lines stay readable against the faded picture. */
 .ghost-image {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.22;
   user-select: none;
   -webkit-user-drag: none;
 }

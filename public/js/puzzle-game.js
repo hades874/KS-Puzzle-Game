@@ -5,6 +5,7 @@
   var TRAY_COLS_DESKTOP = 4;
   var TRAY_DESKTOP_MIN_WIDTH = 640; // must match .tray's CSS breakpoint
   var TRAY_GAP = 10; // must match .tray's CSS `gap`
+  var TRAY_SLACK = 1; // px of headroom per row, against sub-pixel rounding
 
   function trayCols() {
     return global.innerWidth >= TRAY_DESKTOP_MIN_WIDTH ? TRAY_COLS_DESKTOP : TRAY_COLS_MOBILE;
@@ -60,7 +61,9 @@
       var availW = trayEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
       if (!(availW > 0) || !bboxW) { trayScale = scale; return; }
       var cols = trayCols();
-      var perPieceW = (availW - TRAY_GAP * (cols - 1)) / cols;
+      // A hair of slack: sizing the row to fit exactly leaves sub-pixel rounding
+      // free to wrap the last piece of a row onto the next one.
+      var perPieceW = (availW - TRAY_GAP * (cols - 1) - TRAY_SLACK) / cols;
       trayScale = perPieceW / bboxW;
     }
 
@@ -193,6 +196,9 @@
           trayEl.appendChild(msg);
           return;
         }
+        var ghostCanvas = boardEl.querySelector('.ghost-image');
+        if (ghostCanvas) global.PuzzleRender.drawGhostGrid(ghostCanvas, source, grid);
+
         var rawPieces = global.PuzzleRender.renderPieces(source, grid);
         computeTrayScale(rawPieces[0].bbox.w);
         var order = shuffleArray(rawPieces.map(function (_, i) { return i; }));

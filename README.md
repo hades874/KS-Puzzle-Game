@@ -1,6 +1,6 @@
 # KS-Puzzle-Game
 
-A mobile-web jigsaw puzzle for **কৃতী শিক্ষার্থী ২০২৫** (10 Minute School). Players
+A mobile-web jigsaw puzzle for **কৃতী শিক্ষার্থী ২০২৬** (10 Minute School). Players
 register with name, school and phone, assemble a 20-piece medal puzzle against a
 timer, and their result is written to a Google Sheet. Each phone number gets 5
 attempts.

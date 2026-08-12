@@ -96,7 +96,6 @@
 
   var startCanvas = document.getElementById('start-medal-canvas');
   var winCanvas   = document.getElementById('win-medal-canvas');
-  var ghostCanvas = document.getElementById('ghost-canvas');
 
   var sourceCanvas = null;
   var sourceFailed = false;
@@ -120,7 +119,8 @@
       sourceCanvas = window.PuzzleRender.normalizeSource(image);
       drawInto(startCanvas, sourceCanvas);
       drawInto(winCanvas, sourceCanvas);
-      drawInto(ghostCanvas, sourceCanvas);
+      // The board ghost is drawn per game by PuzzleRender.drawGhostGrid, which
+      // needs that game's grid to draw the seams.
       sourceCallbacks.forEach(function (cb) { cb(sourceCanvas); });
       sourceCallbacks = [];
     };
@@ -246,7 +246,7 @@
 
   document.getElementById('btn-share').addEventListener('click', function () {
     var shareData = {
-      title: 'কৃতী শিক্ষার্থী ২০২৫ — মেডেল পাজল',
+      title: 'কৃতী শিক্ষার্থী ২০২৬ — মেডেল পাজল',
       text: 'আমি ১০ মিনিট স্কুলের কৃতী শিক্ষার্থী মেডেল পাজল সম্পূর্ণ করেছি! তুমিও ট্রাই করো।',
       url: window.location.href,
     };
